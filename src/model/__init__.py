@@ -27,8 +27,10 @@ class CollectedDataByOrganization(DomainObject):
 
 class OrganizationProcessing(DomainObject):
     organization = peewee.ForeignKeyField(Organization, backref="organization")
-    collected_data = peewee.ForeignKeyField(CollectedDataByOrganization, backref="collected_data")
+    collected_data = peewee.ForeignKeyField(
+        CollectedDataByOrganization, backref="collected_data")
 
 
 def validate_database(db_instance):
-    db_instance.create_tables([Organization, OrganizationProcessing, CollectedDataByOrganization])
+    db_instance.create_tables(
+        [Organization, OrganizationProcessing, CollectedDataByOrganization])

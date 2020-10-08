@@ -1,8 +1,10 @@
-import logging
+import logging as log
+from http import HTTPStatus
 
 import requests
 from bs4 import BeautifulSoup
-from http import HTTPStatus
+
+import exceptions
 
 # User-Agent header for HTTP request
 USER_AGENT = (
@@ -15,29 +17,42 @@ USER_AGENT = (
 )
 
 
+class Type:
+    YANDEX: int = 1
+    GOOGLE: int = 2
+    DUCK_DUCK_GO: int = 3
+
+
 class Searcher:
-    def __init__(self, header: dict = None):
-        logging.info("Initializing searcher")
+
+    def __init__(self, header: dict = None, searcher_type: Type = Type.YANDEX):
+        if searcher_type != Type.YANDEX:
+            raise exceptions.NotSupportedSearcherTypeException(
+                "Not supported searcher. Use YANDEX search engine")
+
+        log.info("Initializing searcher")
         self.url = "https://yandex.ru/search/?text={0}"
         self.query = None
         if header is not None:
             if "User-Agent" not in header.keys():
                 raise KeyError
         self.request_headers = None
+        self.search_type = searcher_type
 
     def get_query(self) -> list:
         return self.query
 
     def search(self, query: list) -> list:
-        logging.info("Start searching")
+
+        log.info("Start searching")
         self.query = [str(elem) for elem in query]
         request_url = self.url.format("+".join(self.query))
-        logging.info("Searching URL %s", request_url)
+        log.info("Searching URL %s", request_url)
         response = requests.get(request_url, headers=self.request_headers)
 
         result = []
 
-        logging.info("Response code %s", response.status_code)
+        log.info("Response code %s", response.status_code)
         # HTTP OK = 200
         if response.status_code == HTTPStatus.OK:
             soup = BeautifulSoup(response.content, "html.parser")
@@ -47,9 +62,18 @@ class Searcher:
                     link = anchors[0]["href"]
                     result.append(link)
 
+        log.info("Clearing search result from AD references")
+        result = self.__clear_ads_references(result)
         return result
 
     def set_headers(self, headers):
         if "User-Agent" not in headers.keys():
             raise KeyError
         self.request_headers = headers
+
+    def __clear_ads_references(self, search_result: list) -> list:
+        if self.search_type == Type.YANDEX:
+            # In Yandex responses that AD contains yabs domain
+            return list(filter(lambda site: "yabs." not in site, search_result))
+        else:
+            return search_result
