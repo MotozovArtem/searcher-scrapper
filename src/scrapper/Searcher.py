@@ -18,14 +18,27 @@ USER_AGENT = (
 
 
 class Type:
+    '''
+    Класс-перечисление. \n
+    Доступные значения:\n 
+    YANDEX = 1\n 
+    GOOGLE = 2\n 
+    DUCK_DUCK_GO = 3
+    '''
     YANDEX: int = 1
     GOOGLE: int = 2
     DUCK_DUCK_GO: int = 3
 
 
 class Searcher:
+    '''Класс инкапсулирующий обращение к информационно-поисковой системе'''
 
     def __init__(self, header: dict = None, searcher_type: Type = Type.YANDEX):
+        '''
+        header: dict - HTTP заголовки. User-Agent заголовок обязателен\n
+        searcher_type: Type - какую инф. поиск. систему необходимо использовать. 
+        По умолчанию Type.YANDEX.
+        '''
         if searcher_type != Type.YANDEX:
             raise exceptions.NotSupportedSearcherTypeException(
                 "Not supported searcher. Use YANDEX search engine")
@@ -40,10 +53,14 @@ class Searcher:
         self.search_type = searcher_type
 
     def get_query(self) -> list:
+        '''Возвращает ключевые слова'''
         return self.query
 
     def search(self, query: list) -> list:
-
+        '''Отправка запроса к поисковой системе с задаными ключевые словами\n
+        query: list - список ключевых слов\n
+        
+        Возвращает список сайтов, которые выдала инф. поисковая система'''
         log.info("Start searching")
         self.query = [str(elem) for elem in query]
         request_url = self.url.format("+".join(self.query))
@@ -67,11 +84,18 @@ class Searcher:
         return result
 
     def set_headers(self, headers):
+        '''Установка HTTP заголовкой запроса.\n
+         User-Agent обязательный заголовок'''
         if "User-Agent" not in headers.keys():
-            raise KeyError
+            raise KeyError()
         self.request_headers = headers
 
     def __clear_ads_references(self, search_result: list) -> list:
+        '''Очищает результат запроса к инф. поисковой системе, от рекламных ссылок.\n
+        В данный момент поддерживает только YANDEX 
+        
+        search_result: list - результат запрос к инф. поисковой системе
+        Возвращает список сайтов (list), без рекламных ссылок'''
         if self.search_type == Type.YANDEX:
             # In Yandex responses that AD contains yabs domain
             return list(filter(lambda site: "yabs." not in site, search_result))

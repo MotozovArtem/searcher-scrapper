@@ -46,6 +46,7 @@ def main(keywords: tuple = ("займ"), count: int = 5, demo: bool = False):
 
     Spider.start_urls = result
     Spider.allowed_domains = [urlparse(url).hostname for url in result]
+    Spider.max_sites = count
     process = CrawlerProcess(get_project_settings())
     process.crawl(Spider)
     process.start()

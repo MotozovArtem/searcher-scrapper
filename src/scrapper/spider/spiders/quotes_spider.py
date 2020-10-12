@@ -13,18 +13,28 @@ import peewee
 
 
 class Spider(scrapy.Spider):
+    '''
+    
+    '''
     name = 'illegal-activities'
     start_urls = []
+    max_sites = int()
     organization_processing_by_domain = dict()
     collected_data_by_domain = dict()
 
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs):
+        '''
+        Связывание метода spider_close, чтобы он был вызван в момент закрытия сборщика данных
+        '''
         spider = super(Spider, cls).from_crawler(crawler, *args, **kwargs)
         crawler.signals.connect(spider.spider_close, signal=signals.engine_stopped)
         return spider
 
     def spider_close(self):
+        """
+        Завершение процесса сбора данных. Сохранение собранных данных в базу данных.
+        """
         logging.info("Spider closed")
         logging.info("Saving collected data")
         for domain in self.organization_processing_by_domain.keys():
@@ -44,6 +54,9 @@ class Spider(scrapy.Spider):
             self.organization_processing_by_domain[domain].save()
 
     def parse(self, response):
+        """
+        Логика парсинга, в которой определяется продолжать парсинг или необходимо остановиться
+        """
         parsed_url = urlparse(response.url)
 
         if parsed_url.hostname not in self.collected_data_by_domain:
