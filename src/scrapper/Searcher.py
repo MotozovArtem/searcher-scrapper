@@ -84,7 +84,7 @@ class Searcher:
         return result
 
     def set_headers(self, headers):
-        '''Установка HTTP заголовкой запроса.\n
+        '''Установка HTTP заголовка запроса.\n
          User-Agent обязательный заголовок'''
         if "User-Agent" not in headers.keys():
             raise KeyError()

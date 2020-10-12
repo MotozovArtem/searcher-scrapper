@@ -9,16 +9,19 @@
 #     https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
+'''Имя бота'''
 BOT_NAME = 'spider'
 
+'''Имя модуля Spider'''
 SPIDER_MODULES = ['scrapper.spider.spiders']
+'''Имя нового Spider модуля'''
 NEWSPIDER_MODULE = 'scrapper.spider.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'spider (+http://www.yourdomain.com)'
 
-# Obey robots.txt rules
+# Соблюдать правила robots.txt 
 ROBOTSTXT_OBEY = True
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)

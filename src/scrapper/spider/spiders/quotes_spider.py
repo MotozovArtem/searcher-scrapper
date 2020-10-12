@@ -14,7 +14,8 @@ import peewee
 
 class Spider(scrapy.Spider):
     '''
-    
+    Класс, в котором прописана логика сбора данных с сайтов указанных в start_urls и логика отправки нового запроса.\n
+    Максимальное количество сайтов, которые необходимо обработать - max_sites: int\n
     '''
     name = 'illegal-activities'
     start_urls = []

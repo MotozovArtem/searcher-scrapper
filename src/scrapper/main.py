@@ -12,6 +12,12 @@ from scrapper.spider.spiders.quotes_spider import Spider
 
 
 def main(keywords: tuple = ("займ"), count: int = 5, demo: bool = False):
+    '''keywords: tuple (по умолчанию "займ") - кортеж ключевых слов для запроса к информационно поисковой системе\n
+    count: int (по умолчанию 5) - число, ограничивающее количество сайтов, которое необходимо обработать\n
+    demo: bool (по умолчанию False) - флаг, предписывающий использовать демо режим
+    \n
+    демо режим - запрос к инф. поисковой системе не отправляется, начинается процесс сборки данных на демо сайтах.\n
+    "http://quotes.toscrape.com", "http://books.toscrape.com/"'''
     result = []
     if demo:
         result = ["http://quotes.toscrape.com", "http://books.toscrape.com/"]
