@@ -16,35 +16,29 @@ USER_AGENT = (
     "Mozilla/5.0 (Linux; Android 4.2.1; en-us; Nexus 5 Build/JOP40D) AppleWebKit/535.19 (KHTML, like Gecko; googleweblight) Chrome/38.0.1025.166 Mobile Safari/535.19"
 )
 
-
-class Type:
-    '''
-    Класс-перечисление. \n
-    Доступные значения:\n 
-    YANDEX = 1\n 
-    GOOGLE = 2\n 
-    DUCK_DUCK_GO = 3
-    '''
-    YANDEX: int = 1
-    GOOGLE: int = 2
-    DUCK_DUCK_GO: int = 3
+SEARCHER_TYPES = {"YANDEX": "https://yandex.ru/search/?text={0}", 
+                 "GOOGLE": "", 
+                 "DUCK_DUCK_GO": ""}
 
 
 class Searcher:
-    '''Класс инкапсулирующий обращение к информационно-поисковой системе'''
+    '''
+    Класс инкапсулирующий обращение к информационно-поисковой системе
+    '''
 
-    def __init__(self, header: dict = None, searcher_type: Type = Type.YANDEX):
+    def __init__(self, header: dict = None, searcher_type: str = "YANDEX"):
         '''
         header: dict - HTTP заголовки. User-Agent заголовок обязателен\n
         searcher_type: Type - какую инф. поиск. систему необходимо использовать. 
         По умолчанию Type.YANDEX.
         '''
-        if searcher_type != Type.YANDEX:
+        # С любым другим searcher_type логика сломалась бы, так должно было быть?
+        if searcher_type not in SEARCHER_TYPES:
             raise exceptions.NotSupportedSearcherTypeException(
-                "Not supported searcher. Use YANDEX search engine")
+                "Not supported searcher. Use one of the supported search engines")
 
         log.info("Initializing searcher")
-        self.url = "https://yandex.ru/search/?text={0}"
+        self.url = SEARCHER_TYPES[searcher_type]
         self.query = None
         if header is not None:
             if "User-Agent" not in header.keys():
@@ -53,23 +47,28 @@ class Searcher:
         self.search_type = searcher_type
 
     def get_query(self) -> list:
-        '''Возвращает ключевые слова'''
+        '''
+        Возвращает ключевые слова
+        '''
         return self.query
 
     def search(self, query: list) -> list:
-        '''Отправка запроса к поисковой системе с задаными ключевые словами\n
-        query: list - список ключевых слов\n
+        '''
+        Отправка запроса к поисковой системе с задаными ключевые словами
+        query: list - список ключевых слов
         
-        Возвращает список сайтов, которые выдала инф. поисковая система'''
+        Возвращает список сайтов, которые выдала инф. поисковая система
+        '''
         log.info("Start searching")
         self.query = [str(elem) for elem in query]
         request_url = self.url.format("+".join(self.query))
-        log.info("Searching URL %s", request_url)
+
+        log.info(f"Searching URL {request_url}")
         response = requests.get(request_url, headers=self.request_headers)
 
         result = []
 
-        log.info("Response code %s", response.status_code)
+        log.info(f"Response code {response.status_code}")
         # HTTP OK = 200
         if response.status_code == HTTPStatus.OK:
             soup = BeautifulSoup(response.content, "html.parser")
@@ -84,19 +83,23 @@ class Searcher:
         return result
 
     def set_headers(self, headers):
-        '''Установка HTTP заголовка запроса.\n
-         User-Agent обязательный заголовок'''
+        '''
+        Установка HTTP заголовка запроса.
+        User-Agent обязательный заголовок
+        '''
         if "User-Agent" not in headers.keys():
             raise KeyError()
         self.request_headers = headers
 
     def __clear_ads_references(self, search_result: list) -> list:
-        '''Очищает результат запроса к инф. поисковой системе, от рекламных ссылок.\n
+        '''
+        Очищает результат запроса к инф. поисковой системе, от рекламных ссылок.
         В данный момент поддерживает только YANDEX 
         
         search_result: list - результат запрос к инф. поисковой системе
-        Возвращает список сайтов (list), без рекламных ссылок'''
-        if self.search_type == Type.YANDEX:
+        Возвращает список сайтов (list), без рекламных ссылок
+        '''
+        if self.search_type == "YANDEX":
             # In Yandex responses that AD contains yabs domain
             return list(filter(lambda site: "yabs." not in site, search_result))
         else:

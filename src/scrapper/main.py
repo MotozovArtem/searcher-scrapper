@@ -1,7 +1,9 @@
 #!/usr/bin/python3
+
+import os
+import sys
 import argparse
 import logging as log
-import sys
 from urllib.parse import urlparse
 
 from scrapy.crawler import CrawlerProcess
@@ -12,12 +14,14 @@ from scrapper.spider.spiders.quotes_spider import Spider
 
 
 def main(keywords: tuple = ("займ"), count: int = 5, demo: bool = False):
-    '''keywords: tuple (по умолчанию "займ") - кортеж ключевых слов для запроса к информационно поисковой системе\n
+    '''
+    keywords: tuple (по умолчанию "займ") - кортеж ключевых слов для запроса к информационно поисковой системе\n
     count: int (по умолчанию 5) - число, ограничивающее количество сайтов, которое необходимо обработать\n
     demo: bool (по умолчанию False) - флаг, предписывающий использовать демо режим
-    \n
+
     демо режим - запрос к инф. поисковой системе не отправляется, начинается процесс сборки данных на демо сайтах.\n
-    "http://quotes.toscrape.com", "http://books.toscrape.com/"'''
+    "http://quotes.toscrape.com", "http://books.toscrape.com/
+    "'''
     result = []
     if demo:
         result = ["http://quotes.toscrape.com", "http://books.toscrape.com/"]
@@ -32,23 +36,22 @@ def main(keywords: tuple = ("займ"), count: int = 5, demo: bool = False):
     else:    
         search = Searcher()
         user_agent = USER_AGENT[0]
-        log.debug("Set User-Agent header as %s", user_agent)
+        log.debug(f"Set User-Agent header as {user_agent}")
         search.set_headers({"User-Agent": user_agent})
 
-        log.info("Started searching with query %s", " ".join(keywords))
+        log.info(f"Started searching with query {' '.join(keywords)}")
         result = search.search(keywords)
 
     if len(result) == 0:
         log.warning("Result is empty. Check logs")
         sys.exit(0)
 
-    log.info("Searcher result: \n%s\n------------------\n------------------\n------------------\n", "\n".join(result))
+    log.info(f"Searcher result:\n{os.linesep.join(result)}",'\n------------------' * 3,"\n")
 
-    log.info("Limiting search result with %d sites", count)
+    log.info(f"Limiting search result with {count} sites")
     result = result[:count]
 
-    log.info("Searcher result after limitin: \n%s\n------------------\n------------------\n------------------\n", "\n".join(result))
-
+    log.info(f"Searcher result after limitin:\n{os.linesep.join(result)}",'\n------------------' * 3,"\n")
 
     Spider.start_urls = result
     Spider.allowed_domains = [urlparse(url).hostname for url in result]
