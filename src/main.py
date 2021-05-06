@@ -65,9 +65,8 @@ def main(create_model, keywords, site_count, log_level, demo_mode):
 
     log.basicConfig(filename="app.log",
                 format="%(asctime)s [%(name)s] %(levelname)s - %(message)s",
-                level=log._nameToLevel[args.log_level])
+                level=log._nameToLevel[log_level])
 
-    log.info("Passed arguments %s", args)
     log.info("Application started")
 
     if create_model or demo_mode:
@@ -85,6 +84,7 @@ def main(create_model, keywords, site_count, log_level, demo_mode):
 if __name__ == "__main__":
     # Сюда по возможности пишут как можно меньше логики
     input_args = myParser()
+    log.info("Passed arguments %s", input_args)
     main(
         input_args.create_model_, 
         input_args.keywords_, 
