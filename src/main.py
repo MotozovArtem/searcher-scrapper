@@ -6,7 +6,7 @@ import logging as log
 
 from util.Injector import Injector
 
-import scrapper.main as scrapper_main
+from scrapper.main import main as scrapper_main
 
 
 # Обычно выделяют в отдельный метод
@@ -76,7 +76,7 @@ def main(create_model, keywords, site_count, log_level, demo_mode):
 
     keywords = keywords.split(" ")
 
-    scrapper_main.main(keywords, site_count, demo_mode)
+    scrapper_main(keywords, site_count, demo_mode)
 
     INJECTOR.get_db().close()
 
@@ -84,6 +84,7 @@ def main(create_model, keywords, site_count, log_level, demo_mode):
 if __name__ == "__main__":
     # Сюда по возможности пишут как можно меньше логики
     input_args = myParser()
+    # Вроде будет не очень красивый вывод, но для красивого нужно будет немного порвать ASS
     log.info("Passed arguments %s", input_args)
     main(
         input_args.create_model_, 
