@@ -1,11 +1,11 @@
 import json
-import logging
 import uuid
+import logging
 from urllib.parse import urlparse, urljoin
 
 import scrapy
-from bs4 import BeautifulSoup
 from scrapy import signals
+from bs4 import BeautifulSoup
 
 from model import OrganizationProcessing, Organization, CollectedDataByOrganization
 
@@ -61,20 +61,16 @@ class Spider(scrapy.Spider):
         parsed_url = urlparse(response.url)
 
         if parsed_url.hostname not in self.collected_data_by_domain:
-            self.collected_data_by_domain[parsed_url.hostname] = CollectedDataByOrganization(
-            )
+            self.collected_data_by_domain[parsed_url.hostname] = CollectedDataByOrganization()
             self.collected_data_by_domain[parsed_url.hostname].url = \
                 "{url.scheme}://{url.hostname}".format(url=parsed_url)
-            self.collected_data_by_domain[parsed_url.hostname].resources_array = [
-            ]
+            self.collected_data_by_domain[parsed_url.hostname].resources_array = []
 
         if parsed_url.hostname not in self.organization_processing_by_domain.keys():
-            self.organization_processing_by_domain[parsed_url.hostname] = OrganizationProcessing(
-            )
+            self.organization_processing_by_domain[parsed_url.hostname] = OrganizationProcessing()
 
         resource = {"resource": parsed_url.path, "data": response.text}
-        self.collected_data_by_domain[parsed_url.hostname].resources_array.append(
-            resource)
+        self.collected_data_by_domain[parsed_url.hostname].resources_array.append(resource)
 
         # Парсим HTML страницу, для того, чтобы вытащить все имеющиеся на странице ссылки
         soup = BeautifulSoup(response.text, "lxml")
